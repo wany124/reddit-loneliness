@@ -1,5 +1,7 @@
 # Subreddit Statistics
 
+## Data
+
 - Terms:
   - submission: the initial post of a thread
   - comment: the replies after a submission
