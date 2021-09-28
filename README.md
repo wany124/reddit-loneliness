@@ -18,9 +18,23 @@
 
   - submission: 
 
-    ```
-    'subreddit','created_utc','id','title','author','author_fullname','num_comments','upvote_ratio','num_crossposts','over_18','total_awards_received','selftext', 'domain', 'full_link', 'permalink'
-    ```
+    | Parameter             | Description                                  | Default      | Accepted Values                                            |
+    | --------------------- | -------------------------------------------- | ------------ | ---------------------------------------------------------- |
+    | subreddit             | Restrict to a specific subreddit             | N/A          | String or comma-delimited string (Multiple values allowed) |
+    | created_utc           |                                              |              |                                                            |
+    | ids                   | Get specific comments via their ids          | N/A          | Comma-delimited base36 ids                                 |
+    | title                 |                                              |              |                                                            |
+    | author                | Restrict to a specific author                | N/A          | String or comma-delimited string (Multiple values allowed) |
+    | author_fullname       |                                              |              |                                                            |
+    | num_comments          | Restrict results based on number of comments | N/A          | Integer or > x or < x (i.e. num_comments=>100)             |
+    | upvote_ratio          |                                              |              |                                                            |
+    | num_crossposts        |                                              |              |                                                            |
+    | total_awards_received |                                              |              |                                                            |
+    | over_18               | Restrict to nsfw or sfw content              | both allowed | "true" or "false"                                          |
+    | selftext              | Searches the selftext field only             | N/A          | String / Quoted String for phrases                         |
+    | domain                |                                              |              |                                                            |
+    | full_link             |                                              |              |                                                            |
+    | permalink             |                                              |              |                                                            |
 
   - comment:
 
@@ -36,6 +50,10 @@
 
 <img src="data-stats/num-by-year.png">
 
+## #submission, #comments by month (2019-2021)
+
+<img src="data-stats/num-by-month.png">
+
 ### #comments/submission by subreddit
 
 <img src="data-stats/comment-per-sub.png">
@@ -43,8 +61,6 @@
 
 
 ## User engagement statistics
-
-
 
 
 
