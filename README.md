@@ -52,7 +52,17 @@
 
 ## #submission, #comments by month (2019-2021)
 
+- submission trend
+
+<img src='data-stats/sub-by-month.png'>
+
+- comment trend
+
+<img src='data-stats/com-by-month.png'>
+
 <img src="data-stats/num-by-month.png">
+
+
 
 ### #comments/submission by subreddit
 
@@ -62,7 +72,7 @@
 
 ## User engagement statistics
 
+### #submission & #comments per user
 
-
-### #submission & #comments per user distribution
+<img src='data-stats/sub-per-user-count.png' style="zoom:;" ><img src='data-stats/com-per-user-count.png'  >
 
