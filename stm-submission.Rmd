@@ -1,0 +1,164 @@
+---
+title: "stm"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries
+```{r}
+library(stm)
+library(ggplot2)
+library(tidyverse)
+library(wordcloud)
+```
+
+## Preprocess dataset
+```{r}
+uris = c("utmindfulnessstudygmailcommailtoutmindfulnessstudygmailcom",
+         "httpsfindafriendclubhowitworkshttpsfindafriendclubhowitwork","deleted","removed")
+data <- read.csv("stm-data/submission.csv")
+processed <- textProcessor(data$selftext, metadata = data,customstopwords=uris, wordLengths=c(3,25))
+out <- prepDocuments(processed$documents, processed$vocab, processed$meta,lower.thresh=20)
+docs <- out$documents
+vocab <- out$vocab
+meta <-out$meta
+```
+
+## searchK
+```{r}
+storage <- searchK(out$documents, out$vocab, K = c(15,20,25,30,35,40,45,50), prevalence =~ subreddit + ~ year_month, data = meta)
+```
+
+```{r}
+a <- as.data.frame(lapply(storage$results,unlist)) %>% 
+  transmute(K,
+            `Lower bound` = lbound,
+            `Residual` = residual,
+            `Semantic coherence` = semcoh,
+            `Held-out likelihood` = heldout,
+            `EM iterations` = em.its,
+            `Exclusivity` = exclus) %>%
+  gather(Metric, Value, -K)%>%
+  ggplot(aes(K, Value, color = Metric)) + theme_bw() +
+  theme(axis.line = element_line(colour = "black"),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    strip.text = element_text(size=24),
+    strip.background =element_blank()) +
+  geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE, color="black") +
+  facet_wrap(~Metric, scales = "free_y") +
+  theme(aspect.ratio=3/4)+
+  theme(text = element_text(size = 20))+
+  theme(axis.text = element_text(size = 24)) +
+  theme(axis.title = element_text(size = 24)) +
+  #geom_vline(xintercept = 10, color="red") +
+  #geom_vline(xintercept = 16, color="red") +
+  labs(x = "K (number of topics)",
+       y = NULL,
+       title = NULL)
+
+#png(paste("~/Desktop/AMIA/plot/","searchK.png",sep=""),width = 1500, height = 800, units = "px")
+#plot(a)
+#dev.off()
+```
+
+
+## STM model
+```{r}
+stm20<- stm(documents = out$documents, 
+            vocab = out$vocab, 
+            K = 20, 
+            data = out$meta, 
+            #content =~ subreddit, 
+            prevalence =~ subreddit + s(months),
+            max.em.its = 75
+            )
+```
+
+```{r}
+prep20 <- estimateEffect(formula=( 1:20  ~ subreddit + s(months)), stm20,  meta = out$meta, uncertainty = "Global")
+```
+
+```{r}
+png(paste("stm2/","stm20-topic.png",sep=""),width = 1000, height = 650, units = "px", res=120)
+plot(stm20, type = "summary", main="STM-20 Topic Words")
+dev.off()
+```
+
+## topic prevalence trend
+```{r}
+for (a in 1:4){
+  x = (a - 1) * 4 + 1
+  b = 3 + x
+  png(paste("stm2/","topic-prev-trend-",a,".png",sep=""),width = 1500, height = 786, units = "px", res=120)
+par(mfrow=c(2,2))
+par(mar=c(5.1,4.1,4.1,2.1))
+for (i in x:b) {
+  plot(prep20, "months", method = "continuous", topics = i, model = stm20, printlegend = FALSE, xaxt = "n", xlab = "Time", main=paste("Topic #", i, ": ", t$score[i,1],t$score[i,2],t$score[i,3],t$score[i,4],t$score[i,5],t$score[i,6],t$score[i,7]),text.cex=5) 
+  monthseq <- seq(from = as.Date("2014-01-01"), to = as.Date("2021-10-01"), by = "month")
+  monthnames <- format(as.Date(monthseq), "%Y-%m")
+  n = length(monthnames)
+  axis(1,at = seq(1,n,2), labels = monthnames[seq(1,n,2)])
+}
+dev.off()
+}
+
+```
+
+separate trend
+```{r}
+for (i in 1:20){
+
+  png(paste("stm2/trend/","topic-prev-trend-",i,".png",sep=""),width = 750, height = 400, units = "px", res=120)
+par(mfrow=c(1,1))
+par(mar=c(5.1,4.1,4.1,2.1))
+
+plot(prep20, "months", method = "continuous", topics = i, model = stm20, printlegend = FALSE, xaxt = "n", xlab = "Time", main=paste("Topic #", i, ": ", t$score[i,1],t$score[i,2],t$score[i,3],t$score[i,4],t$score[i,5],t$score[i,6],t$score[i,7]),text.cex=5) 
+
+monthseq <- seq(from = as.Date("2014-01-01"), to = as.Date("2021-10-01"), by = "month")
+monthnames <- format(as.Date(monthseq), "%Y-%m")
+n = length(monthnames)
+axis(1,at = seq(1,n,2), labels = monthnames[seq(1,n,2)])
+dev.off()
+}
+```
+
+## Covariate effect
+```{r}
+par(mfrow=c(1,1))
+plot(prep20, covariate = "subreddit", topics = 1:20, model = stm20, method = "difference", cov.value1 = "lonely", cov.value2 = "ForeverAlone", xlab ="lonely ... ForeverAlone", main = "Effect of covariates on topics (K=20)", xlim = c(-.1, .1), labeltype=c("custom"))
+```
+
+```{r}
+png(paste("stm2/","cov-effect-subreddit.png",sep=""),width = 2200, height = 900, units = "px", res=110)
+par(mfrow=c(1,1))
+plot(prep20, covariate = "subreddit", topics =c(18,15,6,14,11,2,9,3), model = stm20, method = "difference", cov.value1 = "lonely", cov.value2 = "ForeverAlone", xlab ="r/lonely ... r/ForeverAlone", main = "Effect of subreddit on topics (K=20)", xlim = c(-.15, .15), labeltype=c("score"),width=50)
+dev.off()
+```
+
+## documents
+
+```{r}
+model = stm20
+n = 20
+num_documents = 10
+# expected proportion: take avg of theta
+proportion <- as.data.frame(colSums(model$theta/nrow(model$theta)))
+# thoughts
+thoughts <- findThoughts(model, texts = out$meta$selftext, topics=c(seq(from=1, to = n, by =1)), n=num_documents) 
+# topic labels
+topics<-labelTopics(model, n = n)[[1]]
+```
+
+```{r}
+for (i in 1:n){
+  png(paste("stm2/documents/",i,".png",sep=""),width = 1000, height = 1500, units = "px")
+  select_topics <- topics
+  topic_12_3 = paste("Topic",i,":",select_topics[i,1],select_topics[i,2],select_topics[i,3],select_topics[i,4],select_topics[i,5],select_topics[i,6],select_topics[i,7], sep=" ")
+  plotQuote(gsub("\n"," ", thoughts$docs[[i]]),width=130,maxwidth = 1000,main=topic_12_3,text.cex=1)
+  dev.off()
+}
+```
