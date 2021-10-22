@@ -88,6 +88,34 @@ plot(stm20, type = "summary", main="STM-20 Topic Words")
 dev.off()
 ```
 
+```{r}
+#export topic words as table
+
+df <- data.frame(matrix(ncol = 3, nrow = 0))
+col_headings <- c('Topic','Metric','Topic Words')
+names(df) <- col_headings
+for (i in 1:20){
+  ind = paste("Topic #", i)
+  start = (i-1)*4+1
+  df[start,1] <- ind
+  df[start,2] = "prob"
+  df[start,3] = toString(t$prob[i,])
+  
+  df[start+1,1] <- ind
+  df[start+1,2] = "frex"
+  df[start+1,3] = toString(t$frex[i,])
+  
+  df[start+2,1] <- ind
+  df[start+2,2] = "lift"
+  df[start+2,3] = toString(t$lift[i,])
+  
+  df[start+3,1] <- ind
+  df[start+3,2] = "score"
+  df[start+3,3] = toString(t$score[i,])
+}
+write.csv(df, file = 'stm20-words.csv', row.names = FALSE, na = '')
+```
+
 ## topic prevalence trend
 ```{r}
 for (a in 1:4){
