@@ -5,9 +5,9 @@ account: akaicc1127
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4802323
-bundleId: 5175980
+bundleId: 5187597
 url: https://akaicc1127.shinyapps.io/social-loneliness-reddit/
-when: 1635191919.29011
-lastSyncTime: 1635191919.29012
+when: 1635445419.21016
+lastSyncTime: 1635445419.21017
 asMultiple: FALSE
 asStatic: FALSE

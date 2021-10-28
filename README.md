@@ -1,5 +1,10 @@
 # Subreddit Statistics
 
+[Dashboard](https://akaicc1127.shinyapps.io/social-loneliness-reddit/)
+
+- STM 20
+- LIWC scores
+
 ## Data
 
 - Terms:

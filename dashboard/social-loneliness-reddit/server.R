@@ -35,6 +35,11 @@ shinyServer(function(input, output) {
     list(src=docpath,width=1000,height="auto")
   },deleteFile = FALSE)
   
+  output$liwcCombined <- renderImage({
+    docpath <- paste("liwc/delta-combined/",category(),"-delta-combined",".png",sep="")
+    list(src=docpath,width=500,height="auto")
+  },deleteFile = FALSE)
+  
   output$docImg <- renderImage({
     docpath <- paste("stm2/documents/",topic(),".png",sep="")
     list(src=docpath,width=800,height="auto")
@@ -93,21 +98,25 @@ shinyServer(function(input, output) {
     else if (input$model == "LIWC scores"){
       fluidPage(
       fluidRow(align="center",
-        column(3),
         column(6,
                radioButtons("category",
                            "Category: ",
                            choices = cate_lst,
                            inline=TRUE)
-        ),
-        column(3)
+        )
       ),
       fluidRow(align="center",
                column(3),
                column(6,
                       imageOutput(outputId="liwcmoy")),
                column(3)
-               )
+               ),
+      fluidRow(align="center",
+               column(3),
+               column(6,
+                      imageOutput(outputId="liwcCombined")),
+               column(3)
+      )
       )
     }
   })
